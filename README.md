@@ -87,7 +87,31 @@ Open https://localhost:7059 in your browser.
 dotnet build
 
 # Run with hot reload
-dotnet watch run
+dotnet watch run --project ppoker
+
+# Run tests
+dotnet test
+```
+
+## Testing
+
+**54 unit tests** covering all business logic:
+
+| Component     | Tests | Coverage                                |
+| ------------- | ----- | --------------------------------------- |
+| `RoomManager` | 36    | Room CRUD, participants, voting, rounds |
+| `PokerHub`    | 18    | SignalR broadcasting, group management  |
+
+Test structure:
+
+```
+ppoker.Tests/
+├── Services/
+│   ├── RoomManagerRoomTests.cs        # Room creation, state
+│   ├── RoomManagerParticipantTests.cs # Join/leave, host transfer
+│   └── RoomManagerVotingTests.cs      # Votes, reveal, reset
+└── Hubs/
+    └── PokerHubTests.cs               # SignalR hub methods
 ```
 
 ## License
