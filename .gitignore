@@ -53,3 +53,7 @@ ScaffoldingReadMe.txt
 
 # Publish output
 publish/
+
+# App settings (keep template, ignore local overrides)
+appsettings.*.json
+!appsettings.json
