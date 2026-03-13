@@ -1,0 +1,108 @@
+@page "/"
+@page "/lobby"
+@rendermode InteractiveServer
+@using ppoker.Data.Services
+@inject RoomManager RoomManager
+@inject NavigationManager Navigation
+
+<PageTitle>Planning Poker - Lobby</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">🃏 Planning Poker</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label class="form-label">Your Name</label>
+                        <input type="text" class="form-control" @bind="userName" placeholder="Enter your name" />
+                    </div>
+
+                    <ul class="nav nav-tabs mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @(activeTab == "create" ? "active" : "")" @onclick="SetTabCreate">
+                                Create Room
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @(activeTab == "join" ? "active" : "")" @onclick="SetTabJoin">
+                                Join Room
+                            </button>
+                        </li>
+                    </ul>
+
+                    @if (activeTab == "create")
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Room Name</label>
+                            <input type="text" class="form-control" @bind="roomName" placeholder="Sprint Planning" />
+                        </div>
+                        <button class="btn btn-primary w-100" @onclick="CreateRoom" disabled="@(!CanProceed)">
+                            Create Room
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Room ID</label>
+                            <input type="text" class="form-control" @bind="roomId" placeholder="Enter room ID" />
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="spectatorCheck" @bind="joinAsSpectator" />
+                            <label class="form-check-label" for="spectatorCheck">Join as spectator</label>
+                        </div>
+                        <button class="btn btn-success w-100" @onclick="JoinRoom" disabled="@(!CanJoin)">
+                            Join Room
+                        </button>
+                    }
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger mt-3" role="alert">
+                            @errorMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string userName = string.Empty;
+    private string roomName = string.Empty;
+    private string roomId = string.Empty;
+    private string activeTab = "create";
+    private bool joinAsSpectator;
+    private string? errorMessage;
+
+    private bool CanProceed => !string.IsNullOrWhiteSpace(userName) && !string.IsNullOrWhiteSpace(roomName);
+    private bool CanJoin => !string.IsNullOrWhiteSpace(userName) && !string.IsNullOrWhiteSpace(roomId);
+
+    private void SetTabCreate() => activeTab = "create";
+    private void SetTabJoin() => activeTab = "join";
+
+    private void CreateRoom()
+    {
+        if (!CanProceed) return;
+
+        var room = RoomManager.CreateRoom(roomName);
+        Navigation.NavigateTo($"/room/{room.Id}?name={Uri.EscapeDataString(userName)}");
+    }
+
+    private void JoinRoom()
+    {
+        if (!CanJoin) return;
+
+        if (!RoomManager.RoomExists(roomId))
+        {
+            errorMessage = "Room not found. Please check the room ID.";
+            return;
+        }
+
+        var spectatorParam = joinAsSpectator ? "&spectator=true" : "";
+        Navigation.NavigateTo($"/room/{roomId}?name={Uri.EscapeDataString(userName)}{spectatorParam}");
+    }
+}

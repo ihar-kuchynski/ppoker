@@ -1,0 +1,73 @@
+@using ppoker.Data.Models
+@namespace ppoker.Components.Poker
+
+<div class="row">
+    <div class="col-md-6">
+        <h6>Vote Distribution</h6>
+        @foreach (var group in GetVoteDistribution())
+        {
+            <div class="d-flex align-items-center mb-2">
+                <span class="badge bg-primary me-2" style="width: 40px;">@group.Vote</span>
+                <div class="progress flex-grow-1" style="height: 25px;">
+                    <div class="progress-bar" role="progressbar" style="width: @(GetPercentage(group.Count))%"
+                         aria-valuenow="@group.Count" aria-valuemin="0" aria-valuemax="@TotalVotes">
+                        @group.Count vote(s)
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-md-6">
+        <h6>Statistics</h6>
+        <ul class="list-unstyled">
+            <li><strong>Total votes:</strong> @TotalVotes</li>
+            @if (NumericVotes.Any())
+            {
+                <li><strong>Average:</strong> @Average.ToString("F1")</li>
+                <li><strong>Min:</strong> @NumericVotes.Min()</li>
+                <li><strong>Max:</strong> @NumericVotes.Max()</li>
+            }
+            @if (HasConsensus)
+            {
+                <li class="text-success"><strong>🎉 Consensus reached!</strong></li>
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<ParticipantState> Participants { get; set; } = [];
+
+    [Parameter]
+    public Dictionary<string, string?> Votes { get; set; } = [];
+
+    private int TotalVotes => Votes.Values.Count(v => v is not null);
+
+    private record VoteGroup(string Vote, int Count);
+
+    private IEnumerable<VoteGroup> GetVoteDistribution()
+    {
+        return Votes.Values
+            .Where(v => v is not null)
+            .GroupBy(v => v!)
+            .Select(g => new VoteGroup(g.Key, g.Count()))
+            .OrderBy(g => g.Vote);
+    }
+
+    private double GetPercentage(int count)
+    {
+        return TotalVotes > 0 ? (count * 100.0 / TotalVotes) : 0;
+    }
+
+    private IEnumerable<double> NumericVotes => Votes.Values
+        .Where(v => v is not null && double.TryParse(v, out _))
+        .Select(v => double.Parse(v!));
+
+    private double Average => NumericVotes.Any() ? NumericVotes.Average() : 0;
+
+    private bool HasConsensus => Votes.Values
+        .Where(v => v is not null)
+        .Distinct()
+        .Count() == 1 && TotalVotes > 1;
+}

@@ -1,0 +1,59 @@
+@using ppoker.Data.Models
+@namespace ppoker.Components.Poker
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">👥 Participants (@Participants.Count)</h5>
+    </div>
+    <ul class="list-group list-group-flush">
+        @foreach (var participant in Participants)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center 
+                @(participant.Id == CurrentParticipantId ? "bg-light" : "")">
+                <div>
+                    <span>@participant.Name</span>
+                    @if (participant.IsHost)
+                    {
+                        <span class="badge bg-warning text-dark ms-1">Host</span>
+                    }
+                    @if (participant.IsSpectator)
+                    {
+                        <span class="badge bg-secondary ms-1">👁️</span>
+                    }
+                </div>
+                <div>
+                    @if (participant.IsSpectator)
+                    {
+                        <span class="text-muted">—</span>
+                    }
+                    else if (IsRevealed && Votes.TryGetValue(participant.Id, out var vote))
+                    {
+                        <span class="badge bg-primary fs-6">@vote</span>
+                    }
+                    else if (participant.HasVoted)
+                    {
+                        <span class="badge bg-success">✓</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-light text-dark">⏳</span>
+                    }
+                </div>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter]
+    public List<ParticipantState> Participants { get; set; } = [];
+
+    [Parameter]
+    public Dictionary<string, string?> Votes { get; set; } = [];
+
+    [Parameter]
+    public bool IsRevealed { get; set; }
+
+    [Parameter]
+    public string? CurrentParticipantId { get; set; }
+}

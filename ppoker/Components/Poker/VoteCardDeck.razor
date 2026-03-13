@@ -1,0 +1,54 @@
+@namespace ppoker.Components.Poker
+
+<div class="d-flex flex-wrap gap-2">
+    @foreach (var card in Deck)
+    {
+        <button class="btn vote-card @(IsSelected(card) ? "btn-primary" : "btn-outline-secondary")"
+                @onclick="() => SelectCard(card)"                disabled="@IsRevealed">
+            @card
+        </button>
+    }
+</div>
+
+<style>
+    .vote-card {
+        width: 60px;
+        height: 80px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        transition: transform 0.2s;
+    }
+
+    .vote-card:hover:not(:disabled) {
+        transform: scale(1.1);
+    }
+
+    .vote-card.btn-primary {
+        transform: scale(1.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string[] Deck { get; set; } = [];
+
+    [Parameter]
+    public string? SelectedValue { get; set; }
+
+    [Parameter]
+    public bool IsRevealed { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnVoteSelected { get; set; }
+
+    private bool IsSelected(string card) => card == SelectedValue;
+
+    private async Task SelectCard(string card)
+    {
+        if (!IsRevealed)
+        {
+            await OnVoteSelected.InvokeAsync(card);
+        }
+    }
+}
