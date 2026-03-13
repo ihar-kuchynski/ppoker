@@ -1,5 +1,5 @@
 @page "/room/{RoomId}"
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 @using Microsoft.AspNetCore.SignalR.Client
 @using ppoker.Data.Models
 @using ppoker.Components.Poker
@@ -71,7 +71,7 @@ else
                 {
                     <div class="mb-4">
                         <h5>Select your estimate:</h5>
-                        <VoteCardDeck Deck="@roomState.Deck"                       SelectedValue="@selectedVote"                      IsRevealed="@roomState.IsRevealed"
+                        <VoteCardDeck Deck="@roomState.Deck" SelectedValue="@selectedVote" IsRevealed="@roomState.IsRevealed"
                                       OnVoteSelected="OnVoteSelected" />
                     </div>
                 }
@@ -84,7 +84,7 @@ else
                             <h5 class="mb-0">📊 Results</h5>
                         </div>
                         <div class="card-body">
-                            <VoteResults Participants="@roomState.Participants"                             Votes="@roomState.Votes" />
+                            <VoteResults Participants="@roomState.Participants" Votes="@roomState.Votes" />
                         </div>
                     </div>
                 }
@@ -106,8 +106,8 @@ else
 
             <!-- Sidebar: Participants -->
             <div class="col-md-3">
-                <ParticipantList Participants="@roomState.Participants"                         Votes="@roomState.Votes"
-                                 IsRevealed="@roomState.IsRevealed"                                 CurrentParticipantId="@currentParticipant?.Id" />
+                <ParticipantList Participants="@roomState.Participants" Votes="@roomState.Votes"
+                                 IsRevealed="@roomState.IsRevealed" CurrentParticipantId="@currentParticipant?.Id" />
             </div>
         </div>
     </div>
