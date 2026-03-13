@@ -46,6 +46,7 @@ ppoker/
 ### SignalR Hub API
 
 **Client → Server:**
+
 - `JoinRoom(roomId, userName, isSpectator)` → `RoomState`
 - `LeaveRoom(roomId)`
 - `CastVote(roomId, participantId, voteValue)`
@@ -54,6 +55,7 @@ ppoker/
 - `SetStory(roomId, story)`
 
 **Server → Client:**
+
 - `RoomUpdated(RoomState)` - broadcast to room group on any state change
 
 ## Getting Started
